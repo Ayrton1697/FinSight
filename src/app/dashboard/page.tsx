@@ -31,6 +31,9 @@ export default async function DashboardPage() {
       <div className="dashboard-grid">
         <div className="card">
           <h2 className="section-title">Upload document</h2>
+          <p style={{ marginBottom: 12, color: "var(--text-muted)", fontSize: 13 }}>
+            PDF, CSV, or image files.
+          </p>
           <FileUploadForm />
         </div>
 

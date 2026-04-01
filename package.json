@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test src/app/api/chat/route.test.ts src/app/api/files/upload/route.test.ts"
+    "test": "tsx --test src/app/api/chat/route.test.ts src/app/api/files/upload/route.test.ts src/lib/files/allowed-upload.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",

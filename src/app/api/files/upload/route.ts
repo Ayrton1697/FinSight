@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAllowedUploadFile } from "@/lib/files/allowed-upload";
 import { env } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -25,6 +26,13 @@ export async function POST(request: Request) {
 
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file received" }, { status: 400 });
+  }
+
+  if (!isAllowedUploadFile(file)) {
+    return NextResponse.json(
+      { error: "Only PDF, CSV, and image files are allowed" },
+      { status: 400 },
+    );
   }
 
   const storagePath = buildStoragePath(user.id, file.name);

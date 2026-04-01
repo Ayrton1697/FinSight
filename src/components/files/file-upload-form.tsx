@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ALLOWED_FILE_ACCEPT } from "@/lib/files/allowed-upload";
 
 export function FileUploadForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -64,7 +65,7 @@ export function FileUploadForm() {
           id="file-input"
           type="file"
           required
-          accept=".pdf,.txt,.md,.csv,.doc,.docx,.json"
+          accept={ALLOWED_FILE_ACCEPT}
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           style={{ display: "none" }}
         />
