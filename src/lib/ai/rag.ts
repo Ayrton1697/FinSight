@@ -6,6 +6,8 @@ type GenerateRagReplyParams = {
   context: string[];
 };
 
+const CHAT_AI_LOG_PREFIX = "[api/chat][ai]";
+
 type OllamaEmbedResponse = {
   embedding?: number[];
   embeddings?: number[][];
@@ -72,9 +74,18 @@ export function sanitizeModelText(text: string): string {
 }
 
 async function createOpenAIEmbeddings(texts: string[]): Promise<number[][]> {
+  console.log(`${CHAT_AI_LOG_PREFIX} requesting OpenAI embeddings`, {
+    inputCount: texts.length,
+    model: env.openaiEmbeddingModel,
+  });
   const response = await getOpenAIClient().embeddings.create({
     model: env.openaiEmbeddingModel,
     input: texts,
+    dimensions: env.ragEmbeddingDimensions,
+  });
+
+  console.log(`${CHAT_AI_LOG_PREFIX} OpenAI embeddings received`, {
+    vectorCount: response.data.length,
     dimensions: env.ragEmbeddingDimensions,
   });
 
@@ -85,6 +96,10 @@ async function createOpenAIEmbeddings(texts: string[]): Promise<number[][]> {
 }
 
 async function createOllamaEmbeddings(texts: string[]): Promise<number[][]> {
+  console.log(`${CHAT_AI_LOG_PREFIX} requesting Ollama embeddings`, {
+    inputCount: texts.length,
+    model: env.ollamaEmbeddingModel,
+  });
   const response = await fetch(getOllamaUrl("/api/embed"), {
     method: "POST",
     headers: {
@@ -111,10 +126,22 @@ async function createOllamaEmbeddings(texts: string[]): Promise<number[][]> {
     throw new Error("Ollama embedding response did not include embeddings");
   }
 
+  console.log(`${CHAT_AI_LOG_PREFIX} Ollama embeddings received`, {
+    vectorCount: embeddings.length,
+    dimensions: embeddings[0]?.length ?? 0,
+  });
+
   return validateEmbeddingCount(texts, embeddings);
 }
 
 async function generateOpenAIReply({ question, context }: GenerateRagReplyParams): Promise<string> {
+  const startedAt = Date.now();
+
+  console.log(`${CHAT_AI_LOG_PREFIX} requesting OpenAI chat completion`, {
+    model: env.openaiChatModel,
+    questionLength: question.length,
+    contextCount: context.length,
+  });
   const response = await getOpenAIClient().responses.create({
     model: env.openaiChatModel,
     input: [
@@ -144,10 +171,22 @@ async function generateOpenAIReply({ question, context }: GenerateRagReplyParams
     throw new Error("OpenAI chat response did not include assistant text");
   }
 
+  console.log(`${CHAT_AI_LOG_PREFIX} OpenAI chat completion received`, {
+    responseLength: text.length,
+    durationMs: Date.now() - startedAt,
+  });
+
   return text;
 }
 
 async function generateOllamaReply({ question, context }: GenerateRagReplyParams): Promise<string> {
+  const startedAt = Date.now();
+
+  console.log(`${CHAT_AI_LOG_PREFIX} requesting Ollama chat completion`, {
+    model: env.ollamaChatModel,
+    questionLength: question.length,
+    contextCount: context.length,
+  });
   const response = await fetch(getOllamaUrl("/api/chat"), {
     method: "POST",
     headers: {
@@ -187,6 +226,11 @@ async function generateOllamaReply({ question, context }: GenerateRagReplyParams
     throw new Error("Ollama chat response did not include assistant text");
   }
 
+  console.log(`${CHAT_AI_LOG_PREFIX} Ollama chat completion received`, {
+    responseLength: sanitizedText.length,
+    durationMs: Date.now() - startedAt,
+  });
+
   return sanitizedText;
 }
 
@@ -194,6 +238,11 @@ export async function createEmbeddings(texts: string[]): Promise<number[][]> {
   if (!texts.length) {
     return [];
   }
+
+  console.log(`${CHAT_AI_LOG_PREFIX} createEmbeddings called`, {
+    provider: env.aiProvider,
+    inputCount: texts.length,
+  });
 
   if (env.aiProvider === "ollama") {
     return createOllamaEmbeddings(texts);
@@ -203,6 +252,12 @@ export async function createEmbeddings(texts: string[]): Promise<number[][]> {
 }
 
 export async function generateRagReply(params: GenerateRagReplyParams): Promise<string> {
+  console.log(`${CHAT_AI_LOG_PREFIX} generateRagReply called`, {
+    provider: env.aiProvider,
+    questionLength: params.question.length,
+    contextCount: params.context.length,
+  });
+
   if (env.aiProvider === "ollama") {
     return generateOllamaReply(params);
   }

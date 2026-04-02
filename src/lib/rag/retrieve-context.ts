@@ -7,6 +7,8 @@ type RetrieveContextParams = {
   query: string;
 };
 
+const CHAT_CONTEXT_LOG_PREFIX = "[api/chat][context]";
+
 type MatchedChunk = {
   file_name: string;
   file_title: string | null;
@@ -26,8 +28,22 @@ type MatchedChunk = {
 };
 
 export async function retrieveContext({ supabase, userId, query }: RetrieveContextParams): Promise<string[]> {
-  const [queryEmbedding] = await createEmbeddings([query]);
+  const startedAt = Date.now();
 
+  console.log(`${CHAT_CONTEXT_LOG_PREFIX} generating query embedding`, {
+    userId,
+    queryLength: query.length,
+  });
+  const [queryEmbedding] = await createEmbeddings([query]);
+  console.log(`${CHAT_CONTEXT_LOG_PREFIX} query embedding generated`, {
+    userId,
+    dimensions: queryEmbedding?.length ?? 0,
+  });
+
+  console.log(`${CHAT_CONTEXT_LOG_PREFIX} running chunk match query`, {
+    userId,
+    matchCount: 6,
+  });
   const { data: matches, error } = await supabase.rpc("match_file_chunks", {
     query_embedding: queryEmbedding,
     match_user_id: userId,
@@ -35,12 +51,26 @@ export async function retrieveContext({ supabase, userId, query }: RetrieveConte
   });
 
   if (error) {
+    console.error(`${CHAT_CONTEXT_LOG_PREFIX} chunk match query failed`, {
+      userId,
+      error: error.message,
+    });
     throw new Error(`Failed to retrieve document context: ${error.message}`);
   }
 
   if (!matches?.length) {
+    console.log(`${CHAT_CONTEXT_LOG_PREFIX} no matching chunks found`, {
+      userId,
+      durationMs: Date.now() - startedAt,
+    });
     return ["No uploaded document context found."];
   }
+
+  console.log(`${CHAT_CONTEXT_LOG_PREFIX} matching chunks retrieved`, {
+    userId,
+    matchCount: matches.length,
+    durationMs: Date.now() - startedAt,
+  });
 
   return (matches as MatchedChunk[]).map((match) => {
     const sourceName = match.file_title || match.file_name;

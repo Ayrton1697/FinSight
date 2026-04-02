@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FinRAG",
+  title: "FinSight",
   description: "AI-powered financial document analysis and chat",
 };
 

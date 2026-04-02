@@ -1,3 +1,8 @@
 Si un user vuelve a subir un file con el mismo nombre, lo pisamos? Hoy estamos guardando uno nuevo agregando el timestamp
 (podemos usar uuid) al nombre 
 
+Usar un modelo despues de extraer el texto de los files al subirlos para que parsee bien el texto antes de guardar el chunk ya que
+como son bank statements la data muchas veces viene en forma tabular y es mas dificil de entender para las LLMs. Mejoraria
+la performance del retrieval 
+
+agregar chequeo de token o auth cada x tiempo

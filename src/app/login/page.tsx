@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FinSightLogo } from "@/components/branding/fin-sight-logo";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -42,17 +43,9 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit} className="login-card">
         <div className="login-brand">
           <span className="login-brand-icon">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path
-                d="M2 12L5.5 6L9 9.5L11.5 5.5L14 12"
-                stroke="#fafafa"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <FinSightLogo size={16} strokeWidth={1.75} />
           </span>
-          <span className="login-brand-name">FinRAG</span>
+          <span className="login-brand-name">FinSight</span>
         </div>
 
         <h1 className="login-title">
