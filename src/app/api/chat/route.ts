@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { NextResponse } from "next/server";
+import { generateRagReply } from "@/lib/ai/rag";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { retrieveContext } from "@/lib/rag/retrieve-context";
 
@@ -7,10 +8,6 @@ const payloadSchema = z.object({
   message: z.string().min(1).max(5000),
   threadId: z.string().uuid().nullable().optional(),
 });
-
-export function buildAssistantReply(context: string[]): string {
-  return `RAG placeholder response. I found ${context.length} context item(s): ${context.join(" | ")}`;
-}
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -73,7 +70,10 @@ export async function POST(request: Request) {
   }
 
   const context = await retrieveContext({ supabase, userId: user.id, query: parsed.data.message });
-  const assistantText = buildAssistantReply(context);
+  const assistantText = await generateRagReply({
+    question: parsed.data.message,
+    context,
+  });
 
   const { data: assistantMessage, error: assistantError } = await supabase
     .from("chat_messages")
