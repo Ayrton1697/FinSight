@@ -5,7 +5,7 @@ from typing import Any
 from flask import request
 
 from backend.config import get_config
-from backend.supabase import SupabaseClient
+from backend.supabase_client import SupabaseClient
 
 
 class AuthenticationError(RuntimeError):

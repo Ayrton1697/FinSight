@@ -5,7 +5,7 @@ from uuid import UUID
 from flask import Blueprint, jsonify
 
 from backend.auth import AuthenticationError, require_authenticated_user
-from backend.supabase import SupabaseError
+from backend.supabase_client import SupabaseError
 
 
 document_blueprint = Blueprint("documents", __name__)

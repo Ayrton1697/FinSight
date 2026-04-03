@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 
 from backend.ai import create_embeddings, generate_rag_reply
 from backend.auth import AuthenticationError, require_authenticated_user
-from backend.supabase import SupabaseError
+from backend.supabase_client import SupabaseError
 
 
 query_blueprint = Blueprint("query", __name__)

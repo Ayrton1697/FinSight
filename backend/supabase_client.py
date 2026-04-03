@@ -5,8 +5,8 @@ from io import BytesIO
 from typing import Any
 from urllib.parse import urljoin
 
-from supabase import Client, create_client
-from supabase.lib.client_options import ClientOptions
+from supabase import create_client
+from supabase.lib.client_options import SyncClientOptions
 
 from backend.config import Config
 
@@ -19,10 +19,10 @@ class SupabaseError(RuntimeError):
 class SupabaseClient:
     config: Config
     access_token: str
-    _user_client: Client | None = field(default=None, init=False, repr=False)
-    _service_role_client: Client | None = field(default=None, init=False, repr=False)
+    _user_client: Any | None = field(default=None, init=False, repr=False)
+    _service_role_client: Any | None = field(default=None, init=False, repr=False)
 
-    def _client(self, *, use_service_role: bool = False) -> Client:
+    def _client(self, *, use_service_role: bool = False) -> Any:
         if use_service_role:
             if self._service_role_client is None:
                 if not self.config.supabase_service_role_key:
@@ -30,7 +30,7 @@ class SupabaseClient:
                 self._service_role_client = create_client(
                     self.config.supabase_url,
                     self.config.supabase_service_role_key,
-                    options=ClientOptions(auto_refresh_token=False, persist_session=False),
+                    options=SyncClientOptions(auto_refresh_token=False, persist_session=False),
                 )
             return self._service_role_client
 
@@ -38,7 +38,7 @@ class SupabaseClient:
             self._user_client = create_client(
                 self.config.supabase_url,
                 self.config.supabase_anon_key,
-                options=ClientOptions(
+                options=SyncClientOptions(
                     auto_refresh_token=False,
                     persist_session=False,
                     headers={"Authorization": f"Bearer {self.access_token}"},

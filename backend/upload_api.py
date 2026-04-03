@@ -3,7 +3,7 @@ from __future__ import annotations
 from flask import Blueprint, jsonify, request
 
 from backend.auth import AuthenticationError, require_authenticated_user
-from backend.supabase import SupabaseError
+from backend.supabase_client import SupabaseError
 from backend.uploads import build_storage_path, get_allowed_upload_kind, process_upload_for_indexing
 
 
