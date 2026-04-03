@@ -1,13 +1,62 @@
-Si un user vuelve a subir un file con el mismo nombre, lo pisamos? Hoy estamos guardando uno nuevo agregando el timestamp
-(podemos usar uuid) al nombre 
+================================================================================
+MEJORAS Y COSAS A DEFINIR
+================================================================================
+Backlog / decisiones pendientes. Ir tachando o actualizando a medida que se cierren.
 
-Usar un modelo despues de extraer el texto de los files al subirlos para que parsee bien el texto antes de guardar el chunk ya que
-como son bank statements la data muchas veces viene en forma tabular y es mas dificil de entender para las LLMs. Mejoraria
-la performance del retrieval 
+--------------------------------------------------------------------------------
+1. GUARDADO DE ARCHIVOS Y VERSIONES
+--------------------------------------------------------------------------------
+Duda de producto
+  Si un usuario vuelve a subir un archivo con el mismo nombre, ¿lo pisamos
+  al que ya está o guardamos versiones?
 
-agregar chequeo de token o auth cada x tiempo
+Cómo está hoy
+  Por ahora siempre se crea uno nuevo y le agregamos el timestamp al nombre
+  del archivo.
 
-Agregar boton para crear nuevas conversaciones
+Para charlar
+  Ver si conviene meter un UUID (u otro id estable) en el nombre o en los
+  metadatos, así no hay choques de nombres y queda claro si la política es
+  reemplazar o mantener historial.
 
-Agregar selector de files para el RAG: un user puede ver una lista desplegable con los files que subio en el chat y seleccionar en cuales quiere buscar,
-para mejorar la performance.
+--------------------------------------------------------------------------------
+2. LIMPIEZA DEL TEXTO DESPUÉS DEL PDF (EXTRACTOS / TABLAS)
+--------------------------------------------------------------------------------
+El tema
+  Después de sacar el texto de los PDFs, muchas veces queda en formato de
+  tabla y a los modelos les cuesta leerlo bien; eso le baja el punch al
+  retrieval.
+
+Idea
+  Pasar el texto por un modelo (o un pipeline aparte) que lo normalice o lo
+  reordene antes del chunking y de indexarlo, pensado para resúmenes bancarios
+  y cosas financieras en tabla.
+
+Qué ganamos
+  Chunks más claros y búsqueda semántica que rinde mejor.
+
+--------------------------------------------------------------------------------
+3. LOGIN Y SESIÓN
+--------------------------------------------------------------------------------
+Idea
+  Chequear o renovar el token / la sesión cada tanto (cada X minutos o como
+  pida el proveedor), en vez de asumir que sigue válido desde el primer acceso. Ya se que 
+  esto es una practica comun pero todavia no lo agregue aca.
+
+--------------------------------------------------------------------------------
+4. CHAT (FRONTEND)
+--------------------------------------------------------------------------------
+  • Botón para arrancar un chat nuevo (limpiar el contexto de la charla sin
+    borrarle los archivos al usuario, salvo que definamos otra cosa).
+
+--------------------------------------------------------------------------------
+5. RAG: ELEGIR EN QUÉ ARCHIVOS BUSCAR
+--------------------------------------------------------------------------------
+Idea
+  Un desplegable en el chat con los archivos que subió el usuario y que pueda
+  tildar en cuáles quiere que busquemos.
+
+Objetivo
+  Menos ruido en el retrieval y mejor tiempo de respuesta / relevancia cuando
+  ya sabe en qué extractos quiere que metamos mano.
+
