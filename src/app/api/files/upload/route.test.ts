@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildStoragePath, sanitizeFileName } from "./route";
+import { buildStoragePath, sanitizeFileName } from "@/lib/files/storage-path";
 
 test("sanitizeFileName removes unsafe characters", () => {
   assert.equal(sanitizeFileName("q1 report (final).pdf"), "q1_report__final_.pdf");

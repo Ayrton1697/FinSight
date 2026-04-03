@@ -45,6 +45,9 @@ function parsePositiveInteger(name: string, value: string | undefined, fallback:
 const AI_PROVIDERS = ["openai", "ollama"] as const;
 
 export const env = {
+  get backendBaseUrl() {
+    return process.env.NEXT_PUBLIC_BACKEND_URL?.trim() || "http://127.0.0.1:5000";
+  },
   get supabaseUrl() {
     return requireNonEmpty(
       "NEXT_PUBLIC_SUPABASE_URL",

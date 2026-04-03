@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:backend": "python -m backend.app",
     "build": "next build",
     "start": "next start",
+    "start:backend": "python -m backend.app",
     "lint": "eslint",
-    "test": "tsx --test src/app/api/chat/route.test.ts src/app/api/files/upload/route.test.ts src/lib/files/allowed-upload.test.ts src/lib/files/extract-pdf-text.test.ts src/lib/rag/chunk-document.test.ts"
+    "test:backend": "python -m unittest discover -s backend/tests",
+    "test": "python -m unittest discover -s backend/tests && tsx --test src/app/api/chat/route.test.ts src/app/api/files/upload/route.test.ts src/lib/files/allowed-upload.test.ts src/lib/files/extract-pdf-text.test.ts src/lib/rag/chunk-document.test.ts"
   },
   "dependencies": {
     "@langchain/textsplitters": "^1.0.1",

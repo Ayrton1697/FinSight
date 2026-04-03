@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { fetchBackend } from "@/lib/backend/client";
 
 type ChatMessage = {
   id: string;
@@ -34,29 +35,33 @@ export function ChatInterface({ initialThreadId, initialMessages }: ChatInterfac
     setIsLoading(true);
     setError(null);
 
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: draft, threadId }),
-    });
+    try {
+      const response = await fetchBackend("/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: draft, threadId }),
+      });
 
-    if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(body?.error ?? "Failed to send message");
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? "Failed to send message");
+        return;
+      }
+
+      const body = (await response.json()) as {
+        threadId: string;
+        userMessage: ChatMessage;
+        assistantMessage: ChatMessage;
+      };
+      setThreadId(body.threadId);
+      setMessages((prev) => [...prev, body.userMessage, body.assistantMessage]);
+      setDraft("");
+      textareaRef.current?.focus();
+    } catch (sendError) {
+      setError(sendError instanceof Error ? sendError.message : "Failed to send message");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const body = (await response.json()) as {
-      threadId: string;
-      userMessage: ChatMessage;
-      assistantMessage: ChatMessage;
-    };
-    setThreadId(body.threadId);
-    setMessages((prev) => [...prev, body.userMessage, body.assistantMessage]);
-    setDraft("");
-    setIsLoading(false);
-    textareaRef.current?.focus();
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {

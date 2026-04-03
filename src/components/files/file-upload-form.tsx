@@ -1,15 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { fetchBackend } from "@/lib/backend/client";
 import { ALLOWED_FILE_ACCEPT } from "@/lib/files/allowed-upload";
 
-export function FileUploadForm() {
+type FileUploadFormProps = {
+  onUploadComplete?: () => void;
+};
+
+export function FileUploadForm({ onUploadComplete }: FileUploadFormProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -18,25 +21,29 @@ export function FileUploadForm() {
     setIsUploading(true);
     setError(null);
 
-    const payload = new FormData();
-    payload.append("file", file);
+    try {
+      const payload = new FormData();
+      payload.append("file", file);
 
-    const response = await fetch("/api/files/upload", {
-      method: "POST",
-      body: payload,
-    });
+      const response = await fetchBackend("/upload", {
+        method: "POST",
+        body: payload,
+      });
 
-    if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(body?.error ?? "Upload failed");
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? "Upload failed");
+        return;
+      }
+
+      setFile(null);
+      if (inputRef.current) inputRef.current.value = "";
+      onUploadComplete?.();
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Upload failed");
+    } finally {
       setIsUploading(false);
-      return;
     }
-
-    setFile(null);
-    if (inputRef.current) inputRef.current.value = "";
-    setIsUploading(false);
-    router.refresh();
   }
 
   return (
