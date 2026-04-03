@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from io import BytesIO
 from typing import Any
 from urllib.parse import urljoin
 
@@ -165,7 +164,7 @@ class SupabaseClient:
         try:
             self._client().storage.from_(self.config.storage_bucket).upload(
                 path=path,
-                file=BytesIO(file_bytes),
+                file=file_bytes,
                 file_options={
                     "content-type": content_type or "application/octet-stream",
                     "upsert": "false",

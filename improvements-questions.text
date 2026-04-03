@@ -6,3 +6,8 @@ como son bank statements la data muchas veces viene en forma tabular y es mas di
 la performance del retrieval 
 
 agregar chequeo de token o auth cada x tiempo
+
+Agregar boton para crear nuevas conversaciones
+
+Agregar selector de files para el RAG: un user puede ver una lista desplegable con los files que subio en el chat y seleccionar en cuales quiere buscar,
+para mejorar la performance.

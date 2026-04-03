@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
+import requests
 from flask import Blueprint, jsonify, request
 
 from backend.ai import create_embeddings, generate_rag_reply
@@ -158,5 +159,7 @@ def query_documents():
         return jsonify({"error": "Invalid payload"}), 400
     except SupabaseError as exc:
         return jsonify({"error": str(exc)}), 500
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "There was an error. Please try again later."}), 500
     except Exception as exc:  # pragma: no cover - safety net
         return jsonify({"error": str(exc) or "Failed to generate response"}), 500
